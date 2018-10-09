@@ -88,6 +88,15 @@ public class Main extends ListenerAdapter {
             return;
         }
         String event_return = event.getMessage().getContentRaw();
+        if(event_return.contains("rpi.edu")) {//if they send an email
+            int rand = event_return.hashCode();
+            //add this rand to the database with the email
+            addtoDatabase(rand, event_return);
+            event.getChannel().sendMessage("Sent verification check to " + event_return + ". Check your e-mail!").queue();
+            Mailer.send("trpi.auth@gmail.com", "goRPI2018!!", event_return, "teamRPI Verification", "Send this code back to the bot:\n" + rand);
+            event.getChannel().sendMessage("Please enter the verification code.").queue();
+            return;
+        }
         if(!event_return.contains("rpi.edu"))  {//if they give the code
             boolean found = findinDatabase(event_return);
             if(found) {
@@ -97,18 +106,9 @@ public class Main extends ListenerAdapter {
                 gc.addRolesToMember(g.getMember(event.getAuthor()), event.getJDA().getRolesByName("peon", true)).complete();
                 return;
             } else {
-                event.getChannel().sendMessage("Doesn't seem to be the correct code.").queue();
+                event.getChannel().sendMessage("Something went wrong. If you entered a code, make sure it matches the code sent in the e-mail exactly. If you entered an email, then this email is not valid. Try again.").queue();
                 return;
             }
-        }
-        if(event_return.contains("rpi.edu")) {//if they send an email
-            int rand = event_return.hashCode();
-            //add this rand to the database with the email
-            addtoDatabase(rand, event_return);
-            event.getChannel().sendMessage("Sent verification check to " + event_return + ". Check your e-mail!").queue();
-            Mailer.send("trpi.auth@gmail.com", "goRPI2018!!", event_return, "teamRPI Verification", "Send this code back to the bot:\n" + rand);
-            event.getChannel().sendMessage("Please enter the verification code.").queue();
-            return;
         }
 
 
